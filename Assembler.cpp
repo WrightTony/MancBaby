@@ -1,6 +1,8 @@
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 #include <string>
-#include <csting>
+#include <cstring>
 #include <vector>
 #include <stdio.h>
 #include <fstream>	
@@ -21,7 +23,7 @@ int main() {
 	
 	cin >> fileName;
 	
-	assemble(fileName);
+	ass->assemble(fileName);
 	
 	cout << "Your code has been converted" << endl;
 	
@@ -29,15 +31,13 @@ int main() {
 
 
 void Assembler::assemble(string fileName){
-	bool first = false;
+	bool first = true;
 	
 	string line;
 	
-	do
+	for(int i = 0; i < 2; i++){
 		//make sure temp output storage is clear
 		tempOutput.clear();
-		//set condition to the opposite so loop will run twice
-		first = !first;
 
 		ifstream source(fileName.c_str());
 
@@ -73,12 +73,13 @@ void Assembler::assemble(string fileName){
 			
 			outputFile.close();
 		}
-	while(first);
+		first = false;
+	}
 }
 
 void Assembler::decodeLine(bool first,string line){
 
-	line.erase(remove(line.begin(),line.end(),' '),line.end()); //remove all white space
+	line.erase(remove_if(line.begin(), line.end(), isspace), line.end()); //remove all white space
 
 	if(first){
 		
@@ -115,7 +116,7 @@ void Assembler::decodeLine(bool first,string line){
 			lineNum++;
 		}
 		
-		for(int k = 0; k < line.length; k++){
+		for(int k = 0; k < line.length(); k++){
 			if(line[k] != ';'){
 				if(lineNum == 1){
 					if(line[k] != ':'){
@@ -124,7 +125,7 @@ void Assembler::decodeLine(bool first,string line){
 						string opCode = line.substr(k+1,k+3);
 						string varName = "";
 						for(int l = k+4; line[l]!=';'; l++){
-							varName += line[j];
+							varName += line[l];
 						}
 						//add string to temp vector of strings
 						string address = getAddress(varName);
@@ -199,8 +200,8 @@ string Assembler::decToBinVar(string toConvert){
 	int rule[32];
 	//populate array
 	int ruleNum = 1;
-	for(int j = 0; j < rule.length(); j++){
-		rule[i] = ruleNum;
+	for(int j = 0; j < 32; j++){
+		rule[j] = ruleNum;
 		ruleNum = ruleNum*2;
 	}
 	
