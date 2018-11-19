@@ -18,9 +18,6 @@ class Assembler{
 	vector<vector<string>> symbolTable;
 	
 	public:
-	//constructor/destructor
-	Assembler();
-	~Assembler();
 	
 	//getters and setters
 	string getFileName();

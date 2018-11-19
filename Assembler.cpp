@@ -55,17 +55,25 @@ void Assembler::assemble(string fileName){
 
 		}
 		if(first){ //after first loop append first set of 0, then values to output file
-			ofstream outputFile("machineCode.txt");
+			ofstream outputFile;
+
+			outputFile.open("machineCode.txt");
 			
 			
 			outputFile << "00000000000000000000000000000000\n";
 			
-			for(vector<string>::const_iterator i = tempOutput.begin(); i != tempOutput.end(); ++i) {
+			for(vector<string>::const_iterator i = tempOutput.end(); i != tempOutput.begin(); i--) {
 				outputFile << *i << '\n';
 			}
+
+			outputFile.close();
 		}else{ //after second loop, append instructions to output file, then second set of 0
+
+			ofstream outputFile;
+
+			outputFile.open("machineCode.txt");
 			
-			for(vector<string>::const_iterator i = tempOutput.begin(); i != tempOutput.end(); ++i) {
+			for(vector<string>::const_iterator i = tempOutput.end(); i != tempOutput.begin(); i--) {
 				outputFile << *i << '\n';
 			}
 			
@@ -79,15 +87,22 @@ void Assembler::assemble(string fileName){
 
 void Assembler::decodeLine(bool first,string line){
 
-	line.erase(remove_if(line.begin(), line.end(), isspace), line.end()); //remove all white space
+	// line.erase(remove_if(line.begin(), line.end(), " "), line.end()); //remove all white space
+
+	for(size_t e = 0; e<line.length(); e++){
+		if(line[e] == ' '){
+			line.erase(line[e], 1);
+		}
+	}
 
 	if(first){
-		
+		cout << " IN FIRST " << endl;
 		if(line[0] != ';'){ //if the entire line is not a comment, increment line count
 			lineNum++;
 		}
 		
-		for(int i = 0; i < line.length(); i++){
+		for(size_t i = 0; i < line.length(); i++){
+			cout << " i: " << i << endl;
 			if(line[i] != ';'){
 				if(colonCount < 3){
 					if(line[i] == ':'){
@@ -116,7 +131,7 @@ void Assembler::decodeLine(bool first,string line){
 			lineNum++;
 		}
 		
-		for(int k = 0; k < line.length(); k++){
+		for(size_t k = 0; k < line.length(); k++){
 			if(line[k] != ';'){
 				if(lineNum == 1){
 					if(line[k] != ':'){
@@ -124,8 +139,9 @@ void Assembler::decodeLine(bool first,string line){
 					}else{
 						string opCode = line.substr(k+1,k+3);
 						string varName = "";
-						for(int l = k+4; line[l]!=';'; l++){
+						for(int l = k+4; line.length(); l++){
 							varName += line[l];
+							if(line[l]==';') break;
 						}
 						//add string to temp vector of strings
 						string address = getAddress(varName);
@@ -171,14 +187,15 @@ void Assembler::addOps(string opCode,string address){
 }
 
 string Assembler::getAddress(string name){
-	for (int i = 0; i < symbolTable.size(); i++){
-		for (int j = 0; j < symbolTable[i].size(); j++)
+	for (size_t i = 0; i < symbolTable.size(); i++){
+		for (size_t j = 0; j < symbolTable[i].size(); j++)
 		{
 			if(symbolTable[i][j].compare(name) == 0){
 				return symbolTable[i][1]; //return the address of the found label
 			}
 		}
 	}
+	return "";
 }
 
 string Assembler::decToBinAdd(string toConvert){
@@ -201,6 +218,7 @@ string Assembler::decToBinVar(string toConvert){
 	//populate array
 	int ruleNum = 1;
 	for(int j = 0; j < 32; j++){
+		cout << " j: " << j << endl;	
 		rule[j] = ruleNum;
 		ruleNum = ruleNum*2;
 	}
@@ -209,7 +227,7 @@ string Assembler::decToBinVar(string toConvert){
 	int dec = stoi(toConvert);
 	
 	
-	for(int i = 32; i > 0; i--){
+	for(int i = 31; i > -1; i--){
 		if(dec>=rule[i]){
 			dec = dec - rule[i];
 			binNum[i] = '1';
@@ -243,4 +261,5 @@ string Assembler::findOpCode(string opCode){
 	if (opCode == "STP"){
 		return "111";
 	}
+	return "";
 }
